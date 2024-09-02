@@ -27,13 +27,21 @@ MAIN_MENU () {
         echo "You are a new customer"
         #insert new customer
       else
-        echo "Welcome back$CUSTOMER_NAME."
+        echo "Welcome back $CUSTOMER_NAME."
       fi
       #get_customer_id
       CUSTOMER_ID=$($PSQL "SELECT customer_id FROM customers WHERE phone='$CUSTOMER_PHONE';")
-      echo -e "$CUSTOMER_ID is the customer id."
       echo "Enter a time:"
       read SERVICE_TIME
+      INSERT_INTO_APPS=$($PSQL "INSERT INTO appointments(customer_id,service_id,time) VALUES($CUSTOMER_ID,$SERVICE_ID_SELECTED,'$SERVICE_TIME');")
+      if [[ -z $INSERT_INTO_APPS ]]
+      then
+        echo -e "\nThere was a error adding your appointment. Please try again."
+        MAIN_MENU
+      else
+        SERVICE_NAME=$($PSQL "SELECT name FROM services WHERE service_id=$SERVICE_ID_SELECTED;")
+        echo -e "\nI have put you down for a$SERVICE_NAME at $SERVICE_TIME, $CUSTOMER_NAME." 
+      fi
     else
       echo -e "No service selected.\n"
       MAIN_MENU 
@@ -41,6 +49,3 @@ MAIN_MENU () {
   fi
 }
 MAIN_MENU
-
-
-
